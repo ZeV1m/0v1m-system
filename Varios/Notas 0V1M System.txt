@@ -1,0 +1,62 @@
+
+Bal
+376etamnNN*d
+
+
+
+
+
+
+¿Por dónde deberíamos proseguir? (La Hoja de Ruta Inmediata)
+Dando continuidad a nuestra estrategia y sin invertir todavía un solo centavo en marketing ni dominios externos, sugiero enfocar los próximos esfuerzos de desarrollo en este orden:
+
+Paso 1: Construir el Módulo del Test de Numen y Admisión en la App.
+Diseñar la pantalla de bienvenida obligatoria con el filtro de realidad y la aceptación de los 4 hábitos antes de habilitar el panel principal.
+
+Paso 2: Integrar el Widget de Seguimiento de Hábitos.
+Añadir en la interfaz un control diario muy sobrio para que el usuario mismo supervise su cumplimiento de los pre-condicionantes (English Raining, Shadowing, Shower Talks, Exposición).
+
+
+--------------------------
+
+Revisando la hoja de ruta integral del 0V1M System y la transición que hemos planteado desde una pedagogía tradicional hacia un modelo puramente neurológico y de soberanía cognitiva, hay un par de pilares estructurales que, a futuro y antes del lanzamiento Evergreen, deberíamos tener muy presentes:
+
+La Mecánica de Recuperación de Rachas y el Costo de Inacción: Aunque ya manejamos un contador de días consecutivos (streak), cuando un usuario rompe el protocolo diario de los 4 hábitos, el sistema necesita una política clara (por ejemplo, una "penalización sináptica" o un reinicio de racha) para mantener la presión conductual alta. En los sistemas de alto rendimiento, el dolor de perder el progreso es un filtro de compromiso tan poderoso como la admisión inicial.
+
+La Soberanía de los Datos y el Backup Local/Nube de las Sinapsis: Actualmente las sinapsis y los chunks viven en Supabase, pero a medida que el usuario personalice su banco, un mecanismo de exportación/importación de su perfil de sinapsis (en formato JSON o respaldo local) reforzaría el concepto ético de "soberanía cognitiva": el usuario es dueño absoluto de su red neuronal digital, sin quedar atado permanentemente a la infraestructura de una base de datos centralizada si no lo desea.
+
+La Calibración de la Velocidad de Audio (TTS) y el Shadowing en Dispositivos Móviles: Aunque la síntesis de voz nativa del navegador (speechSynthesis) y la grabadora funcionan excelente en escritorios como tu Asus ExpertBook, en navegadores móviles (iOS Safari / Android Chrome) las APIs de grabación de audio (MediaRecorder con audio/webm) y los sintetizadores de voz a veces presentan restricciones de permisos estrictas. Antes del despliegue público masivo, convendría auditar la compatibilidad móvil de la grabadora de voz del laboratorio de shadowing.
+
+
+
+
+
+Alternativas de TTS de Alta Fidelidad para Inversión
+ElevenLabs (El estándar de oro en voces orgánicas)
+
+Por qué considerarlo: Es actualmente el motor más avanzado en prosodia, pausas naturales, entonación emocional y fluidez en inglés nativo. Las voces no suenan computarizadas; transmiten respiración y modulación real.
+
+Modelo: API basada en caracteres procesados. Ofrece planes desde $5 USD/mes para volumen inicial y niveles de escala según consumo.
+
+Ventaja clave: Permite clonar o seleccionar voces específicas de hablantes nativos con acentos y velocidades objetivo ideales para el laboratorio de shadowing.
+
+OpenAI TTS (tts-1 / tts-1-hd)
+
+Por qué considerarlo: La API de síntesis de voz de OpenAI ofrece voces extremadamente naturales (como Alloy, Echo, Fable, Onyx, Nova, Shimmer) con una integración sencilla mediante REST API.
+
+Costo: Aproximadamente $0.015 por cada 1,000 caracteres (o $0.030 en HD). Es sumamente económico para un volumen medio de sinapsis.
+
+Amazon Polly (Neural) / Google Cloud TTS (Neural2 / Journey)
+
+Por qué considerarlo: Opciones robustas de infraestructura de nivel empresarial con voces neuronales mejoradas.
+
+Costo: Muy bajo y escalable con niveles gratuitos amplios (hasta 1 millón de caracteres gratis al mes en capas de entrada).
+
+Estrategia de Arquitectura para Eficiencia de Costos
+Para evitar que la inversión en API de audio se dispare a medida que crezca la base de usuarios, el 0V1M System puede implementar un patrón de Caché de Audio en la Nube:
+
+Generación Única: Cuando un chunk o sugerencia es creado en el banco global de Supabase, la API de TTS (por ejemplo, ElevenLabs u OpenAI) genera el archivo de audio MP3 una sola vez.
+
+Almacenamiento en Supabase Storage: Ese archivo se guarda permanentemente en el bucket de almacenamiento del sistema.
+
+Reproducción Zero-Cost posterior: Todos los usuarios que practiquen ese chunk o lo importen a sus sinapsis reproducen directamente el archivo estático guardado en la nube. El costo de API se paga exactamente una vez por cada expresión agregada al sistema, no por cada reproducción individual.

@@ -31,14 +31,18 @@ async function createClient() {
 
 export async function getSynapseItems() {
   const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error("Debes iniciar sesión para consultar tus chunks")
+
   const { data, error } = await supabase
     .from("synapse_items")
     .select("*")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
   if (error) {
     console.error("Error al obtener sinapsis:", error)
-    return []
+    throw new Error("No se pudo cargar el banco de chunks")
   }
 
   return data || []
@@ -49,6 +53,7 @@ export async function createSynapseItem(
   targetText: string, 
   category: string = "chunk"
 ) {
+  if (!sourceText.trim() || !targetText.trim()) throw new Error("La frase y su significado son obligatorios")
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -87,10 +92,13 @@ export async function createSynapseItem(
 
 export async function deleteSynapseItem(id: string) {
   const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error("Debes iniciar sesión para eliminar un chunk")
   const { error } = await supabase
     .from("synapse_items")
     .delete()
     .eq("id", id)
+    .eq("user_id", user.id)
 
   if (error) {
     console.error("Error al eliminar sinapsis:", error)
@@ -99,7 +107,14 @@ export async function deleteSynapseItem(id: string) {
 }
 
 export async function getSuggestedChunks(level: string) {
+  if (!["A1", "A2", "B1", "B2", "C1", "C2"].includes(level)) {
+    throw new Error("Nivel MCER no válido")
+  }
+
   const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error("Debes iniciar sesión para consultar sugerencias")
+
   const { data, error } = await supabase
     .from("system_chunks")
     .select("*")
@@ -107,13 +122,14 @@ export async function getSuggestedChunks(level: string) {
 
   if (error) {
     console.error("Error al obtener chunks sugeridos:", error)
-    return []
+    throw new Error("No se pudieron cargar las sugerencias para este nivel")
   }
 
   return data || []
 }
 
 export async function updateUserProfileLevel(level: string) {
+  if (!["A1", "A2", "B1", "B2", "C1", "C2"].includes(level)) throw new Error("Nivel MCER no válido")
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -130,5 +146,5 @@ export async function updateUserProfileLevel(level: string) {
     throw new Error("No se pudo actualizar el nivel")
   }
 
-  return data
+  return data?.length ? data : null
 }

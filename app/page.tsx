@@ -775,7 +775,7 @@ export default function Home() {
         },
       })
       if (error) throw error
-      setLoginMessage("Si esta dirección tiene una cuenta de evaluador habilitada, recibirás un enlace para entrar.")
+      setLoginMessage("Solicitud aceptada. Si la cuenta está habilitada, el enlace llegará en breve. Revisa Recibidos, Spam y Promociones antes de solicitar otro; espera al menos 60 segundos entre solicitudes.")
     } catch (error) {
       console.error("No se pudo solicitar el enlace de acceso:", error)
       setLoginError("No pudimos enviar el enlace. Revisa la dirección o contacta al equipo del piloto.")

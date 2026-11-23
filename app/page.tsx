@@ -85,7 +85,16 @@ export default function Home() {
   const [loginMessage, setLoginMessage] = useState("")
   const [loginError, setLoginError] = useState("")
   const [isLoginPending, setIsLoginPending] = useState(false)
+  const [loginCooldownSeconds, setLoginCooldownSeconds] = useState(0)
   const [actionError, setActionError] = useState("")
+
+  useEffect(() => {
+    if (loginCooldownSeconds <= 0) return
+    const timer = window.setTimeout(() => {
+      setLoginCooldownSeconds((seconds) => Math.max(0, seconds - 1))
+    }, 1000)
+    return () => window.clearTimeout(timer)
+  }, [loginCooldownSeconds])
 
   // Estados de datos
   const [synapses, setSynapses] = useState<SynapseItem[]>([])
@@ -762,6 +771,7 @@ export default function Home() {
 
   const handleMagicLinkSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (isLoginPending || loginCooldownSeconds > 0) return
     setLoginError("")
     setLoginMessage("")
     setIsLoginPending(true)
@@ -778,9 +788,10 @@ export default function Home() {
       setLoginMessage("Solicitud aceptada. Si la cuenta está habilitada, el enlace llegará en breve. Revisa Recibidos, Spam y Promociones antes de solicitar otro; espera al menos 60 segundos entre solicitudes.")
     } catch (error) {
       console.error("No se pudo solicitar el enlace de acceso:", error)
-      setLoginError("No pudimos enviar el enlace. Revisa la dirección o contacta al equipo del piloto.")
+      setLoginError("No pudimos confirmar el envío. Verifica que escribiste el correo asignado y no vuelvas a pulsar todavía. Espera 60 segundos y revisa Recibidos, Spam y Promociones. Si no llega el enlace, solicítalo una sola vez más; si vuelve a fallar, contacta al equipo del piloto.")
     } finally {
       setIsLoginPending(false)
+      setLoginCooldownSeconds(60)
     }
   }
 
@@ -873,10 +884,14 @@ export default function Home() {
             </label>
             <button
               type="submit"
-              disabled={isLoginPending}
+              disabled={isLoginPending || loginCooldownSeconds > 0}
               className="w-full rounded-xl bg-emerald-500 px-5 py-3 font-bold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-wait disabled:opacity-60"
             >
-              {isLoginPending ? "Enviando enlace…" : "Enviar enlace de acceso"}
+              {isLoginPending
+                ? "Enviando enlace…"
+                : loginCooldownSeconds > 0
+                  ? `Espera ${loginCooldownSeconds}s para solicitar otro enlace`
+                  : "Enviar enlace de acceso"}
             </button>
           </form>
           {loginMessage && <p role="status" className="rounded-lg border border-emerald-900 bg-emerald-950/40 p-3 text-sm text-emerald-200">{loginMessage}</p>}

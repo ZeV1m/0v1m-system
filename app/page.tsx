@@ -512,7 +512,10 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    let cancelled = false
+    let subscription: { unsubscribe: () => void } | undefined
+
+    const handleAuthStateChange = (_event: string, session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
       const user = session?.user
       const nextUserId = user?.id ?? null
       const previousUserId = authUserIdRef.current
@@ -535,9 +538,43 @@ export default function Home() {
         const onboardingDone = localStorage.getItem(`0v1m_onboarding_seen_${user.id}`)
         if (!onboardingDone) setOnboardingStep(1)
       }
-    })
+    }
 
-    return () => subscription.unsubscribe()
+    async function initializeAuth() {
+      // Admin-generated magic links return an implicit session in the URL hash.
+      // The SSR browser client uses PKCE, so persist that returned session into
+      // its cookie storage before subscribing to the initial auth state.
+      const url = new URL(window.location.href)
+      const hashParams = new URLSearchParams(url.hash.slice(1))
+      const accessToken = hashParams.get("access_token")
+      const refreshToken = hashParams.get("refresh_token")
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+
+        url.hash = ""
+        window.history.replaceState(window.history.state, "", url.toString())
+
+        if (error) {
+          setLoginError("El enlace no pudo iniciar sesión. Responde al correo del equipo para recibir ayuda.")
+        }
+      }
+
+      if (cancelled) return
+
+      const { data } = supabase.auth.onAuthStateChange(handleAuthStateChange)
+      subscription = data.subscription
+    }
+
+    void initializeAuth()
+
+    return () => {
+      cancelled = true
+      subscription?.unsubscribe()
+    }
   }, [supabase])
 
   useEffect(() => {
